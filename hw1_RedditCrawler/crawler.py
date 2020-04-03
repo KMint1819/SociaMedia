@@ -1,6 +1,7 @@
 from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
 
 class Crawler(object):
@@ -59,14 +60,17 @@ class Crawler(object):
         ass = soup.find_all('a', {'class': '_2INHSNB8V5eaWp4P0rY_mE'})
         result = []
         for a in ass:
-            if len(result) > page_num:
+            if len(result) == page_num:
                 break
             url = f'{self.ROOT}{a.attrs["href"]}'
             page_content = self.get_page_content(url)
             result.append(page_content)
         return result
 
-
+def test():
+    url = 'https://www.reddit.com/r/learnjava/comments/ftkpls/how_good_is_caleb_curry_to_learn_java_from/'
+    crawler = Crawler()
+    crawler.get_page_content(url)
 
 def main(query):
     board_url = f'https://www.reddit.com/search/?q={query}'
@@ -85,10 +89,13 @@ def main(query):
         xml_content.text = post[1]
         for i, xml_comment in enumerate(xml_comments):
             xml_comment.text = post[2][i]
-    tree = ET.ElementTree(xml_root)
-    tree.write('result.xml')
+
+    xmlstr = minidom.parseString(ET.tostring(xml_root)).toprettyxml(indent="   ")
+    with open('result.xml', 'w+') as f:
+        f.write(xmlstr)
 
 
 if __name__ == "__main__":
     main('samsung')
+    # test()
     # Crawler().execute()
