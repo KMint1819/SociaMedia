@@ -13,24 +13,28 @@ import shutil
 import os
 # Suppress extra logs from tensorflow
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+# tf.config.set_visible_devices([], 'GPU')
 
+from models.util import SyncTool
 
 ################### Hyperparameters ###################
-MAX_BAG = 10000
+MAX_BAG = 13000
 MAX_LEN = 512
-TRAIN_RATIO = 0.8
+TRAIN_RATIO = 0.9
 BATCH_SIZE = 128
-EPOCHS = 40
+EPOCHS = 25
 DATASET_DIR = Path.cwd().parent / 'data' / 'hw2' / 'smm-hw2-fakenewsdetecion'
 #######################################################
 
 
 def get_network():
     net = keras.Sequential()
-    net.add(keras.layers.Embedding(MAX_BAG, 64))
+    net.add(keras.layers.Embedding(MAX_BAG, 128))
+    # net.add(keras.layers.Conv1D(128, 5, padding='same', activation=tf.nn.relu))
+    # net.add(keras.layers.Conv1D(128, 5, padding='same',activation=tf.nn.relu))
     net.add(keras.layers.GlobalAveragePooling1D())
-    net.add(keras.layers.Dense(32, activation=tf.nn.relu))
-    net.add(keras.layers.Dense(16, activation=tf.nn.relu))
+    net.add(keras.layers.Dense(128, activation=tf.nn.relu))
+    net.add(keras.layers.Dense(64, activation=tf.nn.relu))
     net.add(keras.layers.Dense(1, activation=tf.nn.sigmoid))
     net.compile(
         optimizer='adam',
@@ -46,7 +50,9 @@ def main():
     save_dir.mkdir(parents=True)
 
     # Get data numbers
-    df = pd.read_csv(DATASET_DIR / 'train.csv').fillna('')
+    df = pd.read_csv(DATASET_DIR / 'train.csv').fillna(np.nan)
+    df['text'].replace('', np.nan, inplace=True)
+    df.dropna(subset=['text'], inplace=True)
     n_data = df.shape[0]
     n_train = int(n_data * TRAIN_RATIO)
     n_val = n_data - n_train
@@ -80,7 +86,7 @@ def main():
     # Save path
     save_prefix = save_dir / f'{start_time}'
     save_callback = keras.callbacks.ModelCheckpoint(
-        str(save_dir / ('{val_loss:.3f}-{epoch:02d}-_' + start_time + '.hdf5')))
+        str(save_dir / ('{val_acc:.3f}-{epoch:02d}_' + start_time + '.hdf5')))
 
     #
     print('Start training...')
@@ -96,17 +102,17 @@ def main():
     )
 
     # Get best prefix
-    m = 999
+    m = 0
     best_name = None
     for p in save_dir.iterdir():
         if p.suffix != '.hdf5':
             continue
         score = float(str(p.stem).split('-')[0])
-        if score < m:
-            m < score
+        if score > m:
+            m > score
             best_name = str(p.stem)
     shutil.move(save_dir, save_dir.parent / best_name)
-
+    SyncTool.execute('models/')
 
 if __name__ == "__main__":
     main()

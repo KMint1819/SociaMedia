@@ -37,6 +37,7 @@ def load_model(path):
 
 def load_csv(path):
     df = pd.read_csv(path).fillna('')
+    # df = df[:100]
     return df
 
 
@@ -79,6 +80,7 @@ def main(opt):
         print(f'Accuracy: {eval(predicts, labels)}')
     data = {'id': idxs, 'label': predicts}
     out_df = pd.DataFrame(data=data)
+    assert not Path('submit.csv').is_file(), 'submit.csv exists. Remove or rename.'
     out_df.to_csv('submit.csv', index=False)
 
 if __name__ == "__main__":
