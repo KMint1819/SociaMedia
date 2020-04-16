@@ -15,12 +15,13 @@
         - After fitting the texts, save the tokenizer for prediction later.
     3. Turn texts to sequences by the tokenizer
     4. Pad texts
-    5. Split data by provided ratio
+    5. Split data to training set and validation set by provided ratio
     6. Get network
         - Architecture:
             - Embedding
             - GlobalAveragePooling
             - FC_relu
+            - FC_relu
             - FC_sigmoid
     7. Start training
-
+    8. Evaluate

@@ -1,4 +1,8 @@
 
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow import keras
+import tensorflow as tf
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
@@ -10,10 +14,6 @@ import os
 # Suppress extra logs from tensorflow
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.preprocessing.text import Tokenizer
 
 ################### Hyperparameters ###################
 MAX_BAG = 10000
@@ -27,8 +27,9 @@ DATASET_DIR = Path.cwd().parent / 'data' / 'hw2' / 'smm-hw2-fakenewsdetecion'
 
 def get_network():
     net = keras.Sequential()
-    net.add(keras.layers.Embedding(MAX_BAG, 32))
+    net.add(keras.layers.Embedding(MAX_BAG, 64))
     net.add(keras.layers.GlobalAveragePooling1D())
+    net.add(keras.layers.Dense(32, activation=tf.nn.relu))
     net.add(keras.layers.Dense(16, activation=tf.nn.relu))
     net.add(keras.layers.Dense(1, activation=tf.nn.sigmoid))
     net.compile(
@@ -37,10 +38,6 @@ def get_network():
         metrics=['acc']
     )
     return net
-
-
-# def decode_index(arr, d: dict):
-#     return ' '.join([d.get(i, '?') for i in arr])
 
 
 def main():
@@ -88,18 +85,15 @@ def main():
     #
     print('Start training...')
     net = get_network()
-    try:
-        history = net.fit(
-            train_data,
-            train_label,
-            epochs=EPOCHS,
-            batch_size=BATCH_SIZE,
-            validation_data=(val_data, val_label),
-            callbacks=[save_callback],
-            verbose=1
-        )
-    except Exception:
-        print('Training is terminated. Doing postprocess...')
+    history = net.fit(
+        train_data,
+        train_label,
+        epochs=EPOCHS,
+        batch_size=BATCH_SIZE,
+        validation_data=(val_data, val_label),
+        callbacks=[save_callback],
+        verbose=1
+    )
 
     # Get best prefix
     m = 999

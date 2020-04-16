@@ -9,7 +9,6 @@ import argparse
 from tqdm import tqdm
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
-# tf.config.set_visible_devices([], 'GPU')
 
 TEXT = '''House Dem Aide: We Didn’t Even See Comey’s Letter Until Jason Chaffetz Tweeted It By Darrell Lucus on October 30, 2016 Subscribe Jason Chaffetz on the stump in American Fork, Utah ( image courtesy Michael Jolley, available under a Creative Commons-BY license) 
 With apologies to Keith Olbermann, there is no doubt who the Worst Person in The World is this week–FBI Director James Comey. But according to a House Democratic aide, it looks like we also know who the second-worst person is as well. It turns out that when Comey sent his now-infamous letter announcing that the FBI was looking into emails that may be related to Hillary Clinton’s email server, the ranking Democrats on the relevant committees didn’t hear about it from Comey. They found out via a tweet from one of the Republican committee chairmen. 
@@ -56,8 +55,8 @@ def main(opt):
     reversed_word_index = dict([(key, value) for value, key in tokenizer.word_index.items()])
     outputs = []
     idxs = []
-    row_num = df.shape[0]
-    for row in tqdm(df.iterrows(), total=row_num):
+    n_rows = df.shape[0]
+    for row in tqdm(df.iterrows(), total=n_rows):
         data = row[1]
         idx = data[list(df.columns).index('id')]
         text = data[list(df.columns).index('text')]
