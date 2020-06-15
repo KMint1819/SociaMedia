@@ -1,0 +1,13 @@
+{
+    "manifest_version": 2,
+    "name": "Wuhan Virus helper",
+    "description": "A chrome extension for automatically latest news about Wuhan virus",
+    "version": "1.0",
+    "browser_action": {
+        "default_popup": "popup.html",
+        "default_title": "My custom google Extension"
+    },
+    "permissions": [
+        "activeTab"
+    ]
+}
